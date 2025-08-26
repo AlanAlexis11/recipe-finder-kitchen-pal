@@ -1,18 +1,18 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { User, Scale, Ruler, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
+import { useUserStore } from "@/store/useUserStore";
+import { ImcCategory } from "@/types/imcCategory";
+import { Calculator, Ruler, Scale, User } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
-  const [user, setUser] = useState<any>(null);
+  const { updateUser ,user} = useUserStore();
+  const [user2, setUser] = useState<any>(null);
   const [formData, setFormData] = useState({
     weight: "",
     height: ""
@@ -20,17 +20,16 @@ const Profile = () => {
   const [imc, setImc] = useState<number | null>(null);
   const [imcCategory, setImcCategory] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     // Check authentication
     const userData = localStorage.getItem('nutriweb_user');
-    if (!userData) {
+/*     if (!userData) {
       navigate('/login');
       return;
     }
-
+ */
     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
 
@@ -46,22 +45,22 @@ const Profile = () => {
         calculateIMC(profile.weight, profile.height);
       }
     }
-  }, [navigate]);
+  }, []);
 
   const calculateIMC = (weight: number, height: number) => {
     const heightInMeters = height / 100;
     const imcValue = weight / (heightInMeters * heightInMeters);
     setImc(Math.round(imcValue * 10) / 10);
 
-    let category = "";
+    let category: ImcCategory;
     if (imcValue < 18.5) {
-      category = "Bajo peso";
+      category = ImcCategory.BajoPeso;
     } else if (imcValue < 25) {
-      category = "Peso normal";
+      category = ImcCategory.PesoNormal;
     } else if (imcValue < 30) {
-      category = "Sobrepeso";
+      category = ImcCategory.Sobrepeso;
     } else {
-      category = "Obesidad";
+      category = ImcCategory.Obesidad;
     }
     setImcCategory(category);
   };
@@ -72,20 +71,9 @@ const Profile = () => {
       ...prev,
       [name]: value
     }));
-
-    // Calculate IMC in real time
-    const weight = name === 'weight' ? parseFloat(value) : parseFloat(formData.weight);
-    const height = name === 'height' ? parseFloat(value) : parseFloat(formData.height);
-
-    if (weight && height && weight > 0 && height > 0) {
-      calculateIMC(weight, height);
-    } else {
-      setImc(null);
-      setImcCategory("");
-    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -101,18 +89,11 @@ const Profile = () => {
       setIsLoading(false);
       return;
     }
-
     try {
-      // Save profile data
-      const profileData = {
+      await updateUser({
         weight,
         height,
-        imc: imc,
-        imcCategory,
-        updatedAt: new Date().toISOString()
-      };
-
-      localStorage.setItem(`nutriweb_profile_${user.id}`, JSON.stringify(profileData));
+      });
 
       toast({
         title: "¡Perfil actualizado!",
@@ -129,22 +110,20 @@ const Profile = () => {
     }
   };
 
-  const getImcColor = (category: string) => {
+
+  const getImcColor = (category: ImcCategory) => {
     switch (category) {
-      case "Bajo peso": return "text-blue-600";
-      case "Peso normal": return "text-green-600";
-      case "Sobrepeso": return "text-yellow-600";
-      case "Obesidad": return "text-red-600";
+      case ImcCategory.BajoPeso: return "text-blue-600";
+      case ImcCategory.PesoNormal: return "text-green-600";
+      case ImcCategory.Sobrepeso: return "text-yellow-600";
+      case ImcCategory.Obesidad: return "text-red-600";
       default: return "text-gray-600";
     }
   };
 
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <Navigation />
-      
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Perfil</h1>
@@ -165,11 +144,11 @@ const Profile = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label className="text-sm font-medium">Nombre</Label>
-                <p className="text-gray-900">{user.name || "No especificado"}</p>
+                <p className="text-gray-900">{user?.name || "No especificado"}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium">Email</Label>
-                <p className="text-gray-900">{user.email}</p>
+                <p className="text-gray-900">{user?.email}</p>
               </div>
             </CardContent>
           </Card>
@@ -203,7 +182,7 @@ const Profile = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="height">Altura (cm)</Label>
                     <div className="relative">
@@ -229,7 +208,7 @@ const Profile = () => {
           </Card>
         </div>
 
-        {imc && (
+        {user && (
           <Card className="mt-8">
             <CardHeader>
               <div className="flex items-center">
@@ -243,17 +222,17 @@ const Profile = () => {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{imc}</p>
+                  <p className="text-3xl font-bold text-gray-900">{user?.imc}</p>
                   <p className="text-sm text-gray-500">kg/m²</p>
                 </div>
-                <Badge 
-                  variant="secondary" 
-                  className={`text-lg px-4 py-2 ${getImcColor(imcCategory)}`}
+                <Badge
+                  variant="secondary"
+                  className={`text-lg px-4 py-2 ${getImcColor(user?.category_imc as ImcCategory)}`}
                 >
-                  {imcCategory}
+                  {user?.category_imc }
                 </Badge>
               </div>
-              
+
               <div className="mt-6 space-y-2 text-sm text-gray-600">
                 <p><strong>Categorías de IMC:</strong></p>
                 <div className="grid grid-cols-2 gap-2">

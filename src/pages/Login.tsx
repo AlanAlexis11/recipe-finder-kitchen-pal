@@ -32,9 +32,6 @@ const Login = () => {
 
     // Mock authentication (replace with Supabase)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Mock success - store user data
       localStorage.setItem('nutriweb_user', JSON.stringify({
         email,
@@ -46,7 +43,7 @@ const Login = () => {
         title: "¡Bienvenido!",
         description: "Has iniciado sesión correctamente.",
       });
-
+      console.log("nAVEGANDO")
       navigate("/profile");
     } catch (err) {
       setError("Email o contraseña incorrectos");

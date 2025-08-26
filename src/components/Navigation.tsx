@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChefHat } from "lucide-react";
@@ -16,11 +15,11 @@ const Navigation = () => {
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     localStorage.removeItem('nutriweb_user');
     setUser(null);
     navigate('/');
-  };
+  }, [navigate]); 
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -67,4 +66,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation;
+export default memo(Navigation);
