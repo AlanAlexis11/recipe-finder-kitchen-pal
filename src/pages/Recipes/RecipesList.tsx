@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Clock, ChefHat, Utensils } from "lucide-react";
-import { Recipe } from "@/types/recipes";
+import { Recipe, RecipeDifficulty } from "@/types/recipes";
 
 interface RecipesListProps {
   recipes: Recipe[];
@@ -14,9 +14,9 @@ interface RecipesListProps {
 const RecipesList: React.FC<RecipesListProps> = ({ recipes, searchTerm, getAvailableIngredients }) => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case "Fácil": return "bg-green-100 text-green-800";
-      case "Intermedio": return "bg-yellow-100 text-yellow-800";
-      case "Difícil": return "bg-red-100 text-red-800";
+      case RecipeDifficulty.FACIL: return "bg-green-100 text-green-800";
+      case RecipeDifficulty.INTERMEDIO: return "bg-yellow-100 text-yellow-800";
+      case RecipeDifficulty.DIFICIL: return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
     }
   };
