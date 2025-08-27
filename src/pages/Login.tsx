@@ -1,57 +1,46 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChefHat, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/useAuthStore";
+import { ChefHat, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Login = () => {
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login, isLoading, error } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
 
     // Basic validation
     if (!email || !password) {
-      setError("Por favor completa todos los campos");
-      setIsLoading(false);
+      console.log("Por favor completa todos los campos");
       return;
     }
 
-    // Mock authentication (replace with Supabase)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock success - store user data
-      localStorage.setItem('nutriweb_user', JSON.stringify({
-        email,
-        id: 'mock-user-id',
-        loginTime: new Date().toISOString()
-      }));
-
-      toast({
-        title: "¡Bienvenido!",
-        description: "Has iniciado sesión correctamente.",
-      });
-
-      navigate("/profile");
+      const success = await login(email, password);
+      if (success) {
+        navigate("/profile");
+        toast({
+          title: "¡Bienvenido!",
+          description: "Has iniciado sesión correctamente.",
+        });
+      }
     } catch (err) {
-      setError("Email o contraseña incorrectos");
-    } finally {
-      setIsLoading(false);
+       toast({
+          title: "Error!",
+          description: "Email o contraseña incorrectos.",
+        });
     }
   };
 
@@ -137,4 +126,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;

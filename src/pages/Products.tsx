@@ -10,31 +10,34 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShoppingCart, Plus, X, Refrigerator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import { useProductStore } from "@/store/useProductStore";
+import { useUserStore } from "@/store/useUserStore";
+import { Product } from "@/types/user";
 
 const Products = () => {
+  const { userProducts, addProduct, deleteProduct } = useUserStore();
+  const { products, setProducts } = useProductStore();
   const [user, setUser] = useState<any>(null);
-  const [products, setProducts] = useState<string[]>([]);
   const [newProduct, setNewProduct] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     // Check authentication
-    const userData = localStorage.getItem('nutriweb_user');
+   /*  const userData = localStorage.getItem('nutriweb_user');
     if (!userData) {
       navigate('/login');
       return;
     }
-
-    const parsedUser = JSON.parse(userData);
+ */
+  /*   const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
-
+ */
     // Load saved products
-    const savedProducts = localStorage.getItem(`nutriweb_products_${parsedUser.id}`);
+  /*   const savedProducts = localStorage.getItem(`nutriweb_products_${parsedUser.id}`);
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
-    }
+    } */
   }, [navigate]);
 
   const saveProducts = (updatedProducts: string[]) => {
@@ -45,7 +48,7 @@ const Products = () => {
 
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!newProduct.trim()) {
       toast({
         title: "Error",
@@ -56,8 +59,8 @@ const Products = () => {
     }
 
     const trimmedProduct = newProduct.trim().toLowerCase();
-    
-    if (products.some(p => p.toLowerCase() === trimmedProduct)) {
+
+    if (products.some(p => p.name?.toLowerCase() === trimmedProduct)) {
       toast({
         title: "Producto duplicado",
         description: "Este producto ya está en tu lista.",
@@ -66,9 +69,6 @@ const Products = () => {
       return;
     }
 
-    const updatedProducts = [...products, newProduct.trim()];
-    setProducts(updatedProducts);
-    saveProducts(updatedProducts);
     setNewProduct("");
 
     toast({
@@ -78,9 +78,7 @@ const Products = () => {
   };
 
   const handleRemoveProduct = (productToRemove: string) => {
-    const updatedProducts = products.filter(product => product !== productToRemove);
-    setProducts(updatedProducts);
-    saveProducts(updatedProducts);
+    deleteProduct(productToRemove);
 
     toast({
       title: "Producto eliminado",
@@ -88,14 +86,8 @@ const Products = () => {
     });
   };
 
-  const commonProducts = [
-    "Tomate", "Cebolla", "Ajo", "Pollo", "Carne", "Huevos", "Leche", "Queso",
-    "Pan", "Arroz", "Pasta", "Aceite", "Sal", "Pimienta", "Limón", "Papa",
-    "Zanahoria", "Lechuga", "Yogurt", "Manteca", "Harina", "Azúcar"
-  ];
-
-  const handleQuickAdd = (product: string) => {
-    if (products.some(p => p.toLowerCase() === product.toLowerCase())) {
+  const handleQuickAdd = (product: Product) => {
+    if (userProducts.some(p => p.id?.toLowerCase() === product.name?.toLowerCase())) {
       toast({
         title: "Producto duplicado",
         description: "Este producto ya está en tu lista.",
@@ -104,9 +96,7 @@ const Products = () => {
       return;
     }
 
-    const updatedProducts = [...products, product];
-    setProducts(updatedProducts);
-    saveProducts(updatedProducts);
+    addProduct(product);
 
     toast({
       title: "¡Producto agregado!",
@@ -114,12 +104,9 @@ const Products = () => {
     });
   };
 
-  if (!user) return null;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <Navigation />
-      
+
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Heladera</h1>
@@ -157,15 +144,15 @@ const Products = () => {
               <div className="mt-6">
                 <Label className="text-sm font-medium mb-3 block">Productos comunes:</Label>
                 <div className="flex flex-wrap gap-2">
-                  {commonProducts.filter(p => !products.some(existing => existing.toLowerCase() === p.toLowerCase())).slice(0, 8).map((product) => (
+                  {products.filter(p => !userProducts.some(existing => existing.name?.toLowerCase() === p?.name?.toLowerCase())).slice(0, 8).map((product) => (
                     <Button
-                      key={product}
+                      key={product.id}
                       variant="outline"
                       size="sm"
                       onClick={() => handleQuickAdd(product)}
                       className="text-xs"
                     >
-                      + {product}
+                      + {product.name}
                     </Button>
                   ))}
                 </div>
@@ -180,11 +167,11 @@ const Products = () => {
                 <CardTitle>Productos Disponibles</CardTitle>
               </div>
               <CardDescription>
-                {products.length} producto{products.length !== 1 ? 's' : ''} en tu heladera
+                {userProducts.length} producto{userProducts.length !== 1 ? 's' : ''} en tu heladera
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {products.length === 0 ? (
+              {userProducts.length === 0 ? (
                 <Alert>
                   <ShoppingCart className="h-4 w-4" />
                   <AlertDescription>
@@ -193,16 +180,16 @@ const Products = () => {
                 </Alert>
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {products.map((product, index) => (
+                  {userProducts.map((product, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                     >
-                      <span className="font-medium text-gray-900">{product}</span>
+                      <span className="font-medium text-gray-900">{product.name}</span>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleRemoveProduct(product)}
+                        onClick={() => handleRemoveProduct(product.id)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <X className="h-4 w-4" />
@@ -215,7 +202,7 @@ const Products = () => {
           </Card>
         </div>
 
-        {products.length > 0 && (
+        {userProducts?.length > 0 && (
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Resumen de tu Heladera</CardTitle>
@@ -225,15 +212,18 @@ const Products = () => {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {products.map((product, index) => (
+                {userProducts?.map((product, index) => (
                   <Badge key={index} variant="secondary" className="text-sm">
-                    {product}
+                    {product.name}
                   </Badge>
                 ))}
               </div>
               <div className="mt-4 text-center">
-                <Button asChild>
-                  <a href="/recipes">Ver Recetas Disponibles</a>
+                <Button
+                  variant={"default"}
+                  onClick={() => navigate('/recipes')}
+                >
+                  Ver Recetas Disponible
                 </Button>
               </div>
             </CardContent>
