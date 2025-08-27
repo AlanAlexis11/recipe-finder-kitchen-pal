@@ -24,20 +24,20 @@ const Products = () => {
 
   useEffect(() => {
     // Check authentication
-    const userData = localStorage.getItem('nutriweb_user');
+   /*  const userData = localStorage.getItem('nutriweb_user');
     if (!userData) {
       navigate('/login');
       return;
     }
-
-    const parsedUser = JSON.parse(userData);
+ */
+  /*   const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
-
+ */
     // Load saved products
-    const savedProducts = localStorage.getItem(`nutriweb_products_${parsedUser.id}`);
+  /*   const savedProducts = localStorage.getItem(`nutriweb_products_${parsedUser.id}`);
     if (savedProducts) {
       setProducts(JSON.parse(savedProducts));
-    }
+    } */
   }, [navigate]);
 
   const saveProducts = (updatedProducts: string[]) => {

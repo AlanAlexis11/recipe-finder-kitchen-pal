@@ -24,13 +24,13 @@ const Profile = () => {
 
   useEffect(() => {
     // Check authentication
-    const userData = localStorage.getItem('nutriweb_user');
+   /*  const userData = localStorage.getItem('nutriweb_user'); */
 /*     if (!userData) {
-      navigate('/login');
+      navigate('/);
       return;
     }
  */
-    const parsedUser = JSON.parse(userData);
+/*     const parsedUser = JSON.parse(userData);
     setUser(parsedUser);
 
     // Load saved profile data
@@ -44,7 +44,7 @@ const Profile = () => {
       if (profile.weight && profile.height) {
         calculateIMC(profile.weight, profile.height);
       }
-    }
+    } */
   }, []);
 
   const calculateIMC = (weight: number, height: number) => {

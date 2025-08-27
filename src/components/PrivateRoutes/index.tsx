@@ -4,9 +4,11 @@ import { useUserStore } from '@/store/useUserStore';
 import React, { useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import Navigation from '../Navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const PrivateRoute: React.FC = () => {
     const { user, fetchUser, isLoading: isUserLoading, error } = useUserStore();
+    const { isLoggedIn } = useAuthStore();
     const { products, fetchProducts, isLoading: isProductsLoading } = useProductStore();
     const { recipes, fetchRecipes, fetchCategories, categories, isLoading: isRecipesLoading } = useRecipeStore();
 
@@ -34,10 +36,9 @@ const PrivateRoute: React.FC = () => {
             }
         }
     }, []); 
-
-    if (error || !user) {
+  /*   if (isLoggedIn) {
         return <Navigate to="/login" replace />;
-    }
+    } */
 
     return <>
         <Navigation />
