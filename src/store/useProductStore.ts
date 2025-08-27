@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import axios from "axios";
 import { Product } from "@/types/user";
+import axiosInstance from "@/service/api";
 
 interface ProductStore {
   products: Product[];
@@ -12,7 +12,6 @@ interface ProductStore {
   deleteProduct: (productId: string) => Promise<void>;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BACKEND_URL || 'http://localhost:3000';
 const USER_ID = 1;
 
 export const useProductStore = create<ProductStore>((set, get) => ({
@@ -23,11 +22,11 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   fetchProducts: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axios.get(`${API_BASE_URL}/products`);
+      const response = await axiosInstance.get(`/products`);
       if (response.data && response.data) {
         set({ products: response.data, isLoading: false });
       } else {
-        set({ isLoading: false, error: 'Product data not found.' });
+        set({ isLoading: false, error: "Product data not found." });
       }
     } catch (err) {
       console.error("Failed to fetch products:", err);
@@ -37,9 +36,9 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
   addProduct: async (product: Product) => {
     try {
-      const url = `${API_BASE_URL}/users/${USER_ID}/products/${product?.id}`;
+      const url = `/users/${USER_ID}/products/${product?.id}`;
 
-      const response = await axios.post(url);
+      const response = await axiosInstance.post(url);
       set((state) => ({ products: [...state.products, response.data] }));
     } catch (err) {
       console.error("Failed to add product:", err);
@@ -49,9 +48,9 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   setProducts: (products) => set({ products }),
   deleteProduct: async (productId) => {
     try {
-      await axios.delete(`${API_BASE_URL}/users/${USER_ID}/products/${productId}`);
+      await axiosInstance.delete(`/users/${USER_ID}/products/${productId}`);
       set((state) => ({
-        products: state.products.filter(product => product.id !== productId)
+        products: state.products.filter((product) => product.id !== productId),
       }));
     } catch (err) {
       console.error("Failed to delete product:", err);
