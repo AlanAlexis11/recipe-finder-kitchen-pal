@@ -5,21 +5,13 @@ import { ChefHat } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const Navigation = () => {
-  const { logout, isLoggedIn } = useAuthStore();
-  const [user, setUser] = useState<any>(null);
+  const { logout, isLoggedIn, user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    const userData = localStorage.getItem('nutriweb_user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
-
   const handleLogout = useCallback(async () => {
-    await logout()
-    navigate('/login');
+    await logout();
+    navigate("/login");
   }, [navigate]);
 
   const isActive = (path: string) => location.pathname === path;
@@ -36,32 +28,19 @@ const Navigation = () => {
           {user && (
             <nav className="flex items-center space-x-4">
               <Link to="/profile">
-                <Button
-                  variant={isActive('/profile') ? "default" : "ghost"}
-                >
-                  Perfil
-                </Button>
+                <Button variant={isActive("/profile") ? "default" : "ghost"}>Perfil</Button>
               </Link>
               <Link to="/products">
-                <Button
-                  variant={isActive('/products') ? "default" : "ghost"}
-                >
-                  Productos
-                </Button>
+                <Button variant={isActive("/products") ? "default" : "ghost"}>Productos</Button>
               </Link>
               <Link to="/recipes">
-                <Button
-                  variant={isActive('/recipes') ? "default" : "ghost"}
-                >
-                  Recetas
-                </Button>
+                <Button variant={isActive("/recipes") ? "default" : "ghost"}>Recetas</Button>
               </Link>
-              {
-                isLoggedIn &&  <Button variant="outline" onClick={handleLogout}>
-                Cerrar Sesión
-              </Button>
-              }
-             
+              {isLoggedIn && (
+                <Button variant="outline" onClick={handleLogout}>
+                  Cerrar Sesión
+                </Button>
+              )}
             </nav>
           )}
         </div>
