@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import PrivateRoute from "./components/PrivateRoutes";
 import { useAuthStore } from "./store/useAuthStore";
 import { useEffect } from "react";
+import PublicRoute from "./components/PublicRoutes";
 
 const queryClient = new QueryClient();
 
@@ -36,15 +36,29 @@ const App = () => {
               <Route path="/products" element={<Products />} />
               <Route path="/recipes" element={<Recipes />} />
             </Route>
+            <Route
+              path="/login"
+              element={
+                <PublicRoute>
+                  <Login />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <PublicRoute>
+                  <Register />
+                </PublicRoute>
+              }
+            />
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  )
+  );
 };
 
 export default App;

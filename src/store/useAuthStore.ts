@@ -1,11 +1,11 @@
-import { create } from 'zustand';
-import axiosInstance from '@/service/api';
+import { create } from "zustand";
+import axiosInstance from "@/service/api";
 
 interface AuthState {
   isLoggedIn: boolean;
   isLoading: boolean;
   error: string | null;
-  user: any; 
+  user: any;
   login: (email: string, password: string) => Promise<boolean>;
   checkAuthStatus: () => Promise<void>;
   logout: () => Promise<void>;
@@ -13,13 +13,12 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   isLoggedIn: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
   user: null,
   checkAuthStatus: async () => {
-    set({ isLoading: true });
     try {
-      const response = await axiosInstance.get('/auth/status');
+      const response = await axiosInstance.get("/auth/status");
       set({
         isLoggedIn: true,
         user: response.data.user,
@@ -38,12 +37,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.post('/auth/login', {
-        email,
-        password,
-      }, {
-        withCredentials: true,
-      });
+      await axiosInstance.post(
+        "/auth/login",
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       set({
         isLoggedIn: true,
@@ -56,16 +59,20 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoggedIn: false,
         isLoading: false,
         user: null,
-        error: err.response?.data?.message || 'Ocurrió un error al iniciar sesión',
+        error: err.response?.data?.message || "Ocurrió un error al iniciar sesión",
       });
       return false;
     }
   },
 
-  logout: async() => {
-    await axiosInstance.post('/auth/logout', {}, {
-      withCredentials: true,
-    });
+  logout: async () => {
+    await axiosInstance.post(
+      "/auth/logout",
+      {},
+      {
+        withCredentials: true,
+      }
+    );
     set({ isLoggedIn: false, user: null });
   },
 }));

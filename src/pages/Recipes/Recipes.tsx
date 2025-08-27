@@ -37,10 +37,11 @@ const RecipesPage = () => {
   };
 
   const getAvailableIngredients = (recipeIngredients: string[]) => {
-    return recipeIngredients.filter(ingredient =>
-      userProducts.some(product =>
-        product.name?.toLowerCase().includes(ingredient.toLowerCase()) ||
-        ingredient.toLowerCase().includes(product.name?.toLowerCase())
+    return recipeIngredients.filter((ingredient) =>
+      userProducts.some(
+        (product) =>
+          product.name?.toLowerCase().includes(ingredient.toLowerCase()) ||
+          ingredient.toLowerCase().includes(product.name?.toLowerCase())
       )
     );
   };
@@ -50,9 +51,7 @@ const RecipesPage = () => {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Recetas Disponibles</h1>
-          <p className="text-gray-600">
-            Recetas que puedes preparar con los productos de tu heladera
-          </p>
+          <p className="text-gray-600">Recetas que puedes preparar con los productos de tu heladera</p>
         </div>
         {userProducts.length === 0 ? (
           <Alert className="mb-8 flex items-center">
@@ -74,14 +73,15 @@ const RecipesPage = () => {
               onSearchChange={handleSearchChange}
               onCategorySelect={setSelectedCategory}
             />
-            {
-              isLoading ? <div className="text-center mb-4 text-gray-600">Cargando recetas...</div> :
-                <RecipesList
-                  recipes={recipes}
-                  searchTerm={searchTerm}
-                  getAvailableIngredients={getAvailableIngredients}
-                />
-            }
+            {isLoading ? (
+              <div className="text-center mb-4 text-gray-600">Cargando recetas...</div>
+            ) : (
+              <RecipesList
+                recipes={recipes}
+                searchTerm={searchTerm}
+                getAvailableIngredients={getAvailableIngredients}
+              />
+            )}
           </>
         )}
       </main>
