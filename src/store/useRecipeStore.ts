@@ -9,12 +9,17 @@ interface RecipeStore {
   categories: string[];
   fetchRecipes: () => Promise<void>;
   fetchCategories: () => Promise<void>;
-  searchRecipes: (searchTerm: string) => Promise<void>;
+  searchRecipes: (filters: RecipeFilters) => Promise<void>;
   addRecipe: (recipeData: Omit<Recipe, "id">) => Promise<void>;
   deleteRecipe: (recipeId: string) => Promise<void>;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BACKEND_URL || "http://localhost:3000";
+export interface RecipeFilters {
+  name?: string;
+  foodType?: string;
+  category?: string;
+  difficulty?: number;
+}
 
 export const useRecipeStore = create<RecipeStore>((set, get) => ({
   recipes: [],
@@ -33,10 +38,16 @@ export const useRecipeStore = create<RecipeStore>((set, get) => ({
       set({ isLoading: false, error: "Failed to fetch recipes." });
     }
   },
-  searchRecipes: async (searchTerm) => {
+  searchRecipes: async (filters: RecipeFilters) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get(`/recipes/search?name=${searchTerm}`);
+      const params = new URLSearchParams();
+      if (filters.name) params.append("name", filters.name);
+      if (filters.foodType) params.append("food_type", filters.foodType);
+      if (filters.category) params.append("category", filters.category);
+      if (filters.difficulty) params.append("difficulty", filters.difficulty.toString());
+
+      const response = await axiosInstance.get(`/recipes?${params.toString()}`);
       set({ recipes: response.data?.data as Recipe[], isLoading: false });
     } catch (err) {
       console.error("Error searching recipes:", err);

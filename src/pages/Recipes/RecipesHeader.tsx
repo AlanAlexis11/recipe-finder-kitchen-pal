@@ -7,7 +7,7 @@ interface RecipesHeaderProps {
   categories: string[];
   selectedCategory: string;
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCategorySelect: (category: string) => void;
+  onSearchQuickly: (data: string) => void;
 }
 
 const RecipesHeader: React.FC<RecipesHeaderProps> = ({
@@ -15,7 +15,7 @@ const RecipesHeader: React.FC<RecipesHeaderProps> = ({
   categories,
   selectedCategory,
   onSearchChange,
-  onCategorySelect,
+  onSearchQuickly,
 }) => {
   return (
     <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -31,12 +31,12 @@ const RecipesHeader: React.FC<RecipesHeaderProps> = ({
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
-        {categories.map(category => (
+        {categories.map((category) => (
           <Button
             key={category}
             variant={selectedCategory === category ? "default" : "outline"}
             size="sm"
-            onClick={() => onCategorySelect(category)}
+            onClick={() => onSearchQuickly(category)}
           >
             {category}
           </Button>

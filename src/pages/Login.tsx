@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, isLoading, error } = useAuthStore();
+  const { login, isLoading, error, checkAuthStatus } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -21,7 +20,6 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
     if (!email || !password) {
       console.log("Por favor completa todos los campos");
       return;
@@ -30,6 +28,7 @@ const LoginPage = () => {
     try {
       const success = await login(email, password);
       if (success) {
+        checkAuthStatus();
         navigate("/profile");
         toast({
           title: "¡Bienvenido!",
@@ -37,10 +36,10 @@ const LoginPage = () => {
         });
       }
     } catch (err) {
-       toast({
-          title: "Error!",
-          description: "Email o contraseña incorrectos.",
-        });
+      toast({
+        title: "Error!",
+        description: "Email o contraseña incorrectos.",
+      });
     }
   };
 
@@ -52,9 +51,7 @@ const LoginPage = () => {
             <ChefHat className="h-12 w-12 text-green-600" />
           </div>
           <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-          <CardDescription>
-            Ingresa a tu cuenta de Nutriweb
-          </CardDescription>
+          <CardDescription>Ingresa a tu cuenta de Nutriweb</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -63,7 +60,7 @@ const LoginPage = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -94,11 +91,7 @@ const LoginPage = () => {
                   className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>

@@ -1,90 +1,46 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useUserStore } from "@/store/useUserStore";
 import { ImcCategory } from "@/types/imcCategory";
-import { Calculator, Ruler, Scale, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Calculator, Ruler, Scale, User, Mail } from "lucide-react";
+import { useState } from "react";
+import ProfileUserCard from "./ProfileUserCard";
 
 const Profile = () => {
-  const { updateUser ,user} = useUserStore();
-  const [user2, setUser] = useState<any>(null);
+  const { updateUser } = useUserStore();
+  const { user } = useAuthStore();
   const [formData, setFormData] = useState({
-    weight: "",
-    height: ""
+    weight: null,
+    height: null,
   });
-  const [imc, setImc] = useState<number | null>(null);
-  const [imcCategory, setImcCategory] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Check authentication
-   /*  const userData = localStorage.getItem('nutriweb_user'); */
-/*     if (!userData) {
-      navigate('/);
-      return;
-    }
- */
-/*     const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
-
-    // Load saved profile data
-    const profileData = localStorage.getItem(`nutriweb_profile_${parsedUser.id}`);
-    if (profileData) {
-      const profile = JSON.parse(profileData);
-      setFormData({
-        weight: profile.weight?.toString() || "",
-        height: profile.height?.toString() || ""
-      });
-      if (profile.weight && profile.height) {
-        calculateIMC(profile.weight, profile.height);
-      }
-    } */
-  }, []);
-
-  const calculateIMC = (weight: number, height: number) => {
-    const heightInMeters = height / 100;
-    const imcValue = weight / (heightInMeters * heightInMeters);
-    setImc(Math.round(imcValue * 10) / 10);
-
-    let category: ImcCategory;
-    if (imcValue < 18.5) {
-      category = ImcCategory.BajoPeso;
-    } else if (imcValue < 25) {
-      category = ImcCategory.PesoNormal;
-    } else if (imcValue < 30) {
-      category = ImcCategory.Sobrepeso;
-    } else {
-      category = ImcCategory.Obesidad;
-    }
-    setImcCategory(category);
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const weight = parseFloat(formData.weight);
-    const height = parseFloat(formData.height);
+    const weight = formData?.weight;
+    const height = formData?.height;
 
     if (!weight || !height || weight <= 0 || height <= 0) {
       toast({
         title: "Error",
         description: "Por favor ingresa valores válidos para peso y altura.",
-        variant: "destructive"
+        variant: "destructive",
       });
       setIsLoading(false);
       return;
@@ -100,27 +56,31 @@ const Profile = () => {
         description: "Tus datos han sido guardados correctamente.",
       });
     } catch (error) {
+      console.log("🚀 ~ handleSubmit ~ error:", error);
       toast({
         title: "Error",
         description: "No se pudo guardar el perfil. Intenta nuevamente.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-
   const getImcColor = (category: ImcCategory) => {
     switch (category) {
-      case ImcCategory.BajoPeso: return "text-blue-600";
-      case ImcCategory.PesoNormal: return "text-green-600";
-      case ImcCategory.Sobrepeso: return "text-yellow-600";
-      case ImcCategory.Obesidad: return "text-red-600";
-      default: return "text-gray-600";
+      case ImcCategory.BajoPeso:
+        return "text-blue-600";
+      case ImcCategory.PesoNormal:
+        return "text-green-600";
+      case ImcCategory.Sobrepeso:
+        return "text-yellow-600";
+      case ImcCategory.Obesidad:
+        return "text-red-600";
+      default:
+        return "text-gray-600";
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
@@ -137,20 +97,9 @@ const Profile = () => {
                 <User className="h-6 w-6 text-green-600 mr-2" />
                 <CardTitle>Información Personal</CardTitle>
               </div>
-              <CardDescription>
-                Tu información básica de cuenta
-              </CardDescription>
+              <CardDescription>Tu información básica de cuenta</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium">Nombre</Label>
-                <p className="text-gray-900">{user?.name || "No especificado"}</p>
-              </div>
-              <div>
-                <Label className="text-sm font-medium">Email</Label>
-                <p className="text-gray-900">{user?.email}</p>
-              </div>
-            </CardContent>
+            <ProfileUserCard user={user} />
           </Card>
 
           <Card>
@@ -159,9 +108,7 @@ const Profile = () => {
                 <Scale className="h-6 w-6 text-blue-600 mr-2" />
                 <CardTitle>Datos Físicos</CardTitle>
               </div>
-              <CardDescription>
-                Ingresa tu peso y altura para calcular tu IMC
-              </CardDescription>
+              <CardDescription>Ingresa tu peso y altura para calcular tu IMC</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -175,7 +122,8 @@ const Profile = () => {
                         name="weight"
                         type="number"
                         step="0.1"
-                        placeholder="70.5"
+                        min={0}
+                        placeholder={String(user?.userProfiles?.weight)}
                         value={formData.weight}
                         onChange={handleChange}
                         className="pl-10"
@@ -191,7 +139,8 @@ const Profile = () => {
                         id="height"
                         name="height"
                         type="number"
-                        placeholder="175"
+                        min={0}
+                        placeholder={String(user?.userProfiles?.height)}
                         value={formData.height}
                         onChange={handleChange}
                         className="pl-10"
@@ -215,26 +164,26 @@ const Profile = () => {
                 <Calculator className="h-6 w-6 text-purple-600 mr-2" />
                 <CardTitle>Índice de Masa Corporal (IMC)</CardTitle>
               </div>
-              <CardDescription>
-                Calculado automáticamente basado en tu peso y altura
-              </CardDescription>
+              <CardDescription>Calculado automáticamente basado en tu peso y altura</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{user?.imc}</p>
+                  <p className="text-3xl font-bold text-gray-900">{user?.userProfiles.imc}</p>
                   <p className="text-sm text-gray-500">kg/m²</p>
                 </div>
                 <Badge
                   variant="secondary"
-                  className={`text-lg px-4 py-2 ${getImcColor(user?.category_imc as ImcCategory)}`}
+                  className={`text-lg px-4 py-2 ${getImcColor(user?.userProfiles?.imc_category as ImcCategory)}`}
                 >
-                  {user?.category_imc }
+                  {user?.userProfiles?.imc_category}
                 </Badge>
               </div>
 
               <div className="mt-6 space-y-2 text-sm text-gray-600">
-                <p><strong>Categorías de IMC:</strong></p>
+                <p>
+                  <strong>Categorías de IMC:</strong>
+                </p>
                 <div className="grid grid-cols-2 gap-2">
                   <span>Bajo peso: &lt; 18.5</span>
                   <span>Sobrepeso: 25.0 - 29.9</span>

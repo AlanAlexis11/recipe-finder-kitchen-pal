@@ -1,55 +1,27 @@
+import { useAuthStore } from "@/store/useAuthStore";
 import { useProductStore } from "@/store/useProductStore";
 import { useRecipeStore } from "@/store/useRecipeStore";
-import { useUserStore } from "@/store/useUserStore";
 import React, { useEffect } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import Navigation from "../Navigation";
-import { useAuthStore } from "@/store/useAuthStore";
-import { Loader } from "lucide-react";
+import { Navigate, Outlet } from "react-router-dom";
 
 const PrivateRoute: React.FC = () => {
-  const { fetchUser, isLoading: isUserLoading, error } = useUserStore();
-  const { isLoggedIn, isLoading, user } = useAuthStore();
+  const { isLoggedIn } = useAuthStore();
   const { products, fetchProducts, isLoading: isProductsLoading } = useProductStore();
   const { recipes, fetchRecipes, fetchCategories, categories, isLoading: isRecipesLoading } = useRecipeStore();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user && !isUserLoading) {
-      fetchUser();
+    if (isLoggedIn) {
+      if (products.length === 0 && !isProductsLoading) {
+        fetchProducts();
+      }
+      if (recipes.length === 0 && !isRecipesLoading) {
+        fetchRecipes();
+      }
+      if (categories.length === 0 && !isRecipesLoading) {
+        fetchCategories();
+      }
     }
-
-    const promisesToFetch: Promise<void>[] = [];
-
-    if (products.length === 0 && !isProductsLoading) {
-      promisesToFetch.push(fetchProducts());
-    }
-    if (recipes.length === 0 && !isRecipesLoading) {
-      promisesToFetch.push(fetchRecipes());
-    }
-
-    if (categories.length === 0 && !isRecipesLoading) {
-      promisesToFetch.push(fetchCategories());
-    }
-
-    if (promisesToFetch.length > 0) {
-      Promise.all(promisesToFetch);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
-      navigate("/login");
-    }
-  }, [isLoggedIn, isLoading]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader size={48} className="animate-spin" />
-      </div>
-    );
-  }
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) {
     return <Navigate to="/login" replace />;
@@ -57,7 +29,6 @@ const PrivateRoute: React.FC = () => {
 
   return (
     <>
-      <Navigation />
       <Outlet />;
     </>
   );
