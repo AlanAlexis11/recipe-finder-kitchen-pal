@@ -11,9 +11,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Descubre dsadasdsad recetas con lo que tienes en casa
-          </h2>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Descubre recetas con lo que tienes en casa</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Gestiona tu perfil nutricional, registra los productos de tu heladera y encuentra recetas perfectas para ti.
           </p>
