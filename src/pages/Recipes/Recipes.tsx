@@ -1,6 +1,6 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { useRecipeStore } from "@/store/useRecipeStore";
+import { RecipeFilters, useRecipeStore } from "@/store/useRecipeStore";
 import { useUserStore } from "@/store/useUserStore";
 import { AlertCircle } from "lucide-react";
 import { useRef, useState } from "react";
@@ -25,7 +25,8 @@ const RecipesPage = () => {
 
   const debouncedSearch = useRef(
     debounce((term: string) => {
-      searchRecipes(term);
+      const userFilters: RecipeFilters = { name: term };
+      searchRecipes(userFilters);
     }, 500)
   ).current;
 
@@ -46,6 +47,15 @@ const RecipesPage = () => {
     );
   };
 
+  const onSearchQuickly = (value: string) => {
+    let userFilters: RecipeFilters = { category: value };
+    if (value === "Todas") {
+      userFilters = { category: "" };
+    }
+    setSelectedCategory(value);
+    searchRecipes(userFilters);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -53,7 +63,7 @@ const RecipesPage = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Recetas Disponibles</h1>
           <p className="text-gray-600">Recetas que puedes preparar con los productos de tu heladera</p>
         </div>
-        {userProducts.length === 0 ? (
+        {/* {userProducts.length === 0 ? (
           <Alert className="mb-8 flex items-center">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
@@ -65,25 +75,21 @@ const RecipesPage = () => {
             </AlertDescription>
           </Alert>
         ) : (
-          <>
-            <RecipesHeader
-              searchTerm={searchTerm}
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSearchChange={handleSearchChange}
-              onCategorySelect={setSelectedCategory}
-            />
-            {isLoading ? (
-              <div className="text-center mb-4 text-gray-600">Cargando recetas...</div>
-            ) : (
-              <RecipesList
-                recipes={recipes}
-                searchTerm={searchTerm}
-                getAvailableIngredients={getAvailableIngredients}
-              />
-            )}
-          </>
+          <> */}
+        <RecipesHeader
+          searchTerm={searchTerm}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSearchChange={handleSearchChange}
+          onSearchQuickly={onSearchQuickly}
+        />
+        {isLoading ? (
+          <div className="text-center mb-4 text-gray-600">Cargando recetas...</div>
+        ) : (
+          <RecipesList recipes={recipes} searchTerm={searchTerm} getAvailableIngredients={getAvailableIngredients} />
         )}
+        {/*   </>
+        )} */}
       </main>
     </div>
   );

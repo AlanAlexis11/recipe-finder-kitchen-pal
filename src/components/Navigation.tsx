@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, memo } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ChefHat } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
+import { ChefHat } from "lucide-react";
+import { memo, useCallback } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const { logout, isLoggedIn, user } = useAuthStore();
@@ -15,7 +15,7 @@ const Navigation = () => {
   }, [navigate]);
 
   const isActive = (path: string) => location.pathname === path;
-
+  if (location.pathname.includes("login")) return null;
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

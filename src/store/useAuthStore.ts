@@ -1,13 +1,15 @@
 import { create } from "zustand";
 import axiosInstance from "@/service/api";
+import { User } from "@/types/user";
 
 interface AuthState {
   isLoggedIn: boolean;
   isLoading: boolean;
   error: string | null;
-  user: any;
+  user: User;
   login: (email: string, password: string) => Promise<boolean>;
   checkAuthStatus: () => Promise<void>;
+  updateUser: (user: User) => void;
   logout: () => Promise<void>;
 }
 
@@ -17,6 +19,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   error: null,
   user: null,
   checkAuthStatus: async () => {
+    set({
+      isLoading: true,
+    });
     try {
       const response = await axiosInstance.get("/auth/status");
       set({
@@ -51,7 +56,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         isLoggedIn: true,
         isLoading: false,
-        user: { email },
       });
       return true;
     } catch (err: any) {
@@ -66,6 +70,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
+    set({ isLoggedIn: true, user: null });
+
     await axiosInstance.post(
       "/auth/logout",
       {},
@@ -74,5 +80,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     );
     set({ isLoggedIn: false, user: null });
+  },
+  updateUser: (user: User) => {
+    set({ user: user });
   },
 }));

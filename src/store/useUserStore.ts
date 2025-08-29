@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { Product, User } from "@/types/user";
 import axiosInstance from "@/service/api";
+import { useAuthStore } from "./useAuthStore";
 
 interface UserStore {
   user: User | null;
@@ -21,16 +22,15 @@ export const useUserStore = create<UserStore>((set, get) => ({
   error: null,
   userProducts: [],
   setUser: (user) => set({ user }),
-  updateUser: async (data) => {
+  updateUser: async (data: Partial<User>, id = 1) => {
     try {
-      const updatedUser = { ...get().user, ...data };
-      const res = await axiosInstance.patch(`/users/1`, updatedUser);
-      set({ user: res?.data?.data as User });
+      const authStore = useAuthStore.getState();
+      const res = await axiosInstance.patch(`/users/${id}`, data);
+      authStore.updateUser(res?.data?.data as any); 
     } catch (error) {
       console.error("Error updating user:", error);
     }
   },
-  // ✅ Método para agregar un nuevo producto
   addProduct: async (product: Product) => {
     try {
       const url = `/users/${USER_ID}/products/${product?.id}`;
@@ -44,9 +44,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
   deleteProduct: async (productId) => {
     try {
-      // Ruta para eliminar un producto
       await axiosInstance.delete(`/users/${USER_ID}/products/${productId}`);
-      // Actualiza el estado filtrando el producto eliminado
       set((state) => ({
         userProducts: state.userProducts.filter((product) => product.id !== productId),
       }));

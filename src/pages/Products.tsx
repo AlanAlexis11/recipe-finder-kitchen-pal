@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ShoppingCart, Plus, X, Refrigerator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
 import { useProductStore } from "@/store/useProductStore";
 import { useUserStore } from "@/store/useUserStore";
 import { Product } from "@/types/user";
@@ -22,23 +20,6 @@ const Products = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    // Check authentication
-   /*  const userData = localStorage.getItem('nutriweb_user');
-    if (!userData) {
-      navigate('/login');
-      return;
-    }
- */
-  /*   const parsedUser = JSON.parse(userData);
-    setUser(parsedUser);
- */
-    // Load saved products
-  /*   const savedProducts = localStorage.getItem(`nutriweb_products_${parsedUser.id}`);
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } */
-  }, [navigate]);
 
   const saveProducts = (updatedProducts: string[]) => {
     if (user) {
@@ -53,18 +34,18 @@ const Products = () => {
       toast({
         title: "Error",
         description: "Por favor ingresa un producto válido.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
     const trimmedProduct = newProduct.trim().toLowerCase();
 
-    if (products.some(p => p.name?.toLowerCase() === trimmedProduct)) {
+    if (products.some((p) => p.name?.toLowerCase() === trimmedProduct)) {
       toast({
         title: "Producto duplicado",
         description: "Este producto ya está en tu lista.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -87,11 +68,11 @@ const Products = () => {
   };
 
   const handleQuickAdd = (product: Product) => {
-    if (userProducts.some(p => p.id?.toLowerCase() === product.name?.toLowerCase())) {
+    if (userProducts.some((p) => p.id?.toLowerCase() === product.name?.toLowerCase())) {
       toast({
         title: "Producto duplicado",
         description: "Este producto ya está en tu lista.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -106,7 +87,6 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Mi Heladera</h1>
@@ -120,9 +100,7 @@ const Products = () => {
                 <Plus className="h-6 w-6 text-green-600 mr-2" />
                 <CardTitle>Agregar Producto</CardTitle>
               </div>
-              <CardDescription>
-                Añade productos que tienes en tu heladera
-              </CardDescription>
+              <CardDescription>Añade productos que tienes en tu heladera</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAddProduct} className="space-y-4">
@@ -144,17 +122,22 @@ const Products = () => {
               <div className="mt-6">
                 <Label className="text-sm font-medium mb-3 block">Productos comunes:</Label>
                 <div className="flex flex-wrap gap-2">
-                  {products.filter(p => !userProducts.some(existing => existing.name?.toLowerCase() === p?.name?.toLowerCase())).slice(0, 8).map((product) => (
-                    <Button
-                      key={product.id}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleQuickAdd(product)}
-                      className="text-xs"
-                    >
-                      + {product.name}
-                    </Button>
-                  ))}
+                  {products
+                    .filter(
+                      (p) => !userProducts.some((existing) => existing.name?.toLowerCase() === p?.name?.toLowerCase())
+                    )
+                    .slice(0, 8)
+                    .map((product) => (
+                      <Button
+                        key={product.id}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleQuickAdd(product)}
+                        className="text-xs"
+                      >
+                        + {product.name}
+                      </Button>
+                    ))}
                 </div>
               </div>
             </CardContent>
@@ -167,24 +150,19 @@ const Products = () => {
                 <CardTitle>Productos Disponibles</CardTitle>
               </div>
               <CardDescription>
-                {userProducts.length} producto{userProducts.length !== 1 ? 's' : ''} en tu heladera
+                {userProducts.length} producto{userProducts.length !== 1 ? "s" : ""} en tu heladera
               </CardDescription>
             </CardHeader>
             <CardContent>
               {userProducts.length === 0 ? (
                 <Alert>
                   <ShoppingCart className="h-4 w-4" />
-                  <AlertDescription>
-                    No tienes productos registrados. ¡Comienza agregando algunos!
-                  </AlertDescription>
+                  <AlertDescription>No tienes productos registrados. ¡Comienza agregando algunos!</AlertDescription>
                 </Alert>
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {userProducts.map((product, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                    >
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <span className="font-medium text-gray-900">{product.name}</span>
                       <Button
                         variant="ghost"
@@ -206,9 +184,7 @@ const Products = () => {
           <Card className="mt-8">
             <CardHeader>
               <CardTitle>Resumen de tu Heladera</CardTitle>
-              <CardDescription>
-                Estos son todos los productos que tienes disponibles
-              </CardDescription>
+              <CardDescription>Estos son todos los productos que tienes disponibles</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -219,10 +195,7 @@ const Products = () => {
                 ))}
               </div>
               <div className="mt-4 text-center">
-                <Button
-                  variant={"default"}
-                  onClick={() => navigate('/recipes')}
-                >
+                <Button variant={"default"} onClick={() => navigate("/recipes")}>
                   Ver Recetas Disponible
                 </Button>
               </div>
